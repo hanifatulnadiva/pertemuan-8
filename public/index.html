@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate API Key</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-[#F1F3E0] via-[#D2DCB6] to-[#A1BC98] flex items-center justify-center p-4 relative">
+
+    <nav class="absolute top-0 left-0 w-full z-10 py-6 px-6">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            
+            <a href="index.html" class="flex items-center gap-2 text-[#556556] hover:text-[#3d4a3e] transition group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 group-hover:rotate-12 transition duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                <span class="text-xl font-bold tracking-wide">API<span class="text-[#778873]">Manager</span></span>
+            </a>
+
+            <div class="flex items-center gap-6">
+            
+                <a href="login.html" class="text-[#556556] font-medium hover:text-[#2e3b2f] transition border-b-2 border-transparent hover:border-[#556556]">
+                    Login Admin
+                </a>
+            </div>
+
+        </div>
+    </nav>
+    <div class="w-full max-w-lg z-20 mt-16 md:mt-0"> 
+        
+        <div class="bg-white/70 backdrop-blur-md p-8 rounded-xl shadow-xl border border-[#A1BC98]/40 transition-all duration-300">
+            
+            <h2 class="text-3xl font-semibold text-center text-[#778873] mb-2">
+                Developer API
+            </h2>
+            <p class="text-center text-[#556556] mb-8 text-sm">Isi data diri Anda untuk mendapatkan akses API Key.</p>
+
+            <form class="space-y-5" onsubmit="processGenerate(event)">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[#556556] font-medium text-sm">First Name</label>
+                        <input id="first_name" required type="text" 
+                            class="w-full border border-[#A1BC98] rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none transition"
+                            placeholder="John">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[#556556] font-medium text-sm">Last Name</label>
+                        <input id="last_name" required type="text" 
+                            class="w-full border border-[#A1BC98] rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none transition"
+                            placeholder="Doe">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[#556556] font-medium text-sm">Email Address</label>
+                    <input id="email" required type="email" 
+                        class="w-full border border-[#A1BC98] rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none transition"
+                        placeholder="john@example.com">
+                </div>
+
+                <button id="btnSubmit" type="submit" 
+                    class="w-full bg-[#778873] hover:bg-[#6A7C66] text-white font-semibold py-2.5 rounded-lg transition shadow-md hover:shadow-lg flex justify-center items-center gap-2 group transform active:scale-95 duration-150">
+                    <span>Generate API Key</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+
+            </form>
+        </div>
+
+        <div id="resultContainer" class="hidden mt-6 animate-fade-in-up">
+            <div class="bg-white/90 backdrop-blur-sm border-l-4 border-[#778873] p-6 rounded-lg shadow-lg relative overflow-hidden">
+                
+                <div class="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-[#D2DCB6] rounded-full blur-xl opacity-50"></div>
+
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-[#D2DCB6] p-2 rounded-full text-[#556556]">
+                        <i class="fas fa-check text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-[#556556]">Berhasil!</h3>
+                </div>
+
+                <p class="text-[#556556] mb-4 text-sm">
+                    API Key berhasil dibuat. Simpan key ini baik-baik.
+                </p>
+
+                <div class="bg-[#F1F3E0] p-3 rounded-md border border-[#A1BC98] flex justify-between items-center group">
+                    <code id="displayApiKey" class="text-[#778873] font-mono font-bold text-lg tracking-wide select-all break-all mr-2">
+                        </code>
+                    
+                    <button onclick="copyToClipboard()" class="text-[#556556] hover:text-[#2e3b2f] transition p-2 rounded hover:bg-[#D2DCB6]/50" title="Copy">
+                        <i class="far fa-copy text-lg"></i>
+                    </button>
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-2 italic">
+                    Expired pada: <span id="displayDate" class="font-medium"></span>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    async function processGenerate(e) {
+        e.preventDefault(); 
+
+        const btn = document.getElementById("btnSubmit");
+        const resultContainer = document.getElementById("resultContainer");
+        const displayKey = document.getElementById("displayApiKey");
+        const displayDate = document.getElementById("displayDate");
+
+        // 1. Loading State
+        const originalBtnText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+        try {
+            // STEP A: Request Random String
+            const resKey = await fetch("http://localhost:3000/api/apikey/generate");
+            const dataKey = await resKey.json();
+            
+            const generatedKey = dataKey.apiKey;
+            const expiredDate = dataKey.outOfDate;
+
+            // STEP B: Save to DB
+            const payload = {
+                first_name: document.getElementById("first_name").value,
+                last_name: document.getElementById("last_name").value,
+                email: document.getElementById("email").value,
+                key: generatedKey,
+                out_of_date: expiredDate
+            };
+
+            const resSave = await fetch("http://localhost:3000/api/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const resultSave = await resSave.json();
+
+            if (resSave.ok) {
+                // UI Update
+                displayKey.innerText = generatedKey;
+                displayDate.innerText = new Date(expiredDate).toLocaleDateString();
+                
+                resultContainer.classList.remove("hidden");
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } else {
+                throw new Error(resultSave.message);
+            }
+
+        } catch (err) {
+            // Demo Error Handling (Hapus alert ini jika backend sudah ready)
+            console.error(err);
+            alert("Error: Backend belum tersambung (atau " + err.message + ")");
+        } finally {
+            // Reset Button (tapi biarkan disabled agar user fokus ke result)
+            btn.innerHTML = 'Generated <i class="fas fa-check"></i>';
+        }
+    }
+
+    function copyToClipboard() {
+        const keyText = document.getElementById("displayApiKey").innerText;
+        navigator.clipboard.writeText(keyText);
+        alert("API Key berhasil disalin!");
+    }
+</script>
+
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translate3d(0, 20px, 0); }
+        to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
+</style>
+
+</body>
+</html>
