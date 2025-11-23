@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - API Keys</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-[#6A7C66] text-white flex flex-col justify-between shadow-2xl z-20">
+            <div>
+                <div class="h-16 flex items-center justify-center border-b border-[#556556] bg-[#5D7F62]">
+                    <h1 class="text-xl font-bold tracking-wider flex items-center"><i class="fas fa-shield-alt mr-2"></i> ADMIN PANEL</h1>
+                </div>
+                <nav class="mt-6 px-4 space-y-2">
+                     <a href="./dashboard.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
+                        <i class="fas fa-home w-6"></i> <span class="font-medium">Dashboard Utama</span>
+                    </a>
+                    <a href="/dashboard-users.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
+                        <i class="fas fa-users w-6"></i> <span class="font-medium">Daftar Users</span>
+                    </a>
+                    <a href="/dashboard-apikeys.html" class="flex items-center px-4 py-3 text-left rounded-lg bg-[#556556] text-white transition shadow-inner">
+                        <i class="fas fa-key w-6"></i> <span class="font-medium">Daftar API Keys</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-[#556556] bg-[#5D7F62]">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30"><i class="fas fa-user-tie text-lg"></i></div>
+                    <div class="overflow-hidden"><p class="text-xs text-gray-300">Login sebagai:</p><p id="adminEmailDisplay" class="font-semibold text-sm truncate w-36">...</p></div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500/90 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- KONTEN UTAMA -->
+        <main class="flex-1 overflow-y-auto bg-[#F1F3E0] p-8 relative z-10">
+            <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-[#A1BC98]/50 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#546650]">Manajemen API Keys</h2>
+                    <p class="text-sm text-gray-500 mt-1">Lihat dan kelola lisensi key pengguna.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari Key..." class="pl-10 pr-4 py-2 border border-[#A1BC98] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A7C66] bg-white/80 w-64 shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
+                    </div>
+                    <button onclick="openCreateModal()" class="bg-[#6A7C66] hover:bg-[#5D7F62] text-white px-4 py-2 rounded-lg font-medium shadow-md transition flex items-center gap-2"><i class="fas fa-plus"></i> Tambah Key</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-[#A1BC98]/30 overflow-hidden min-h-[400px]">
+                <div id="tableContent" class="p-0">
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-400"><i class="fas fa-spinner fa-spin text-3xl mb-3 text-[#A1BC98]"></i><p>Memuat data keys...</p></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL CREATE -->
+    <div id="createModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-[#546650]">Buat API Key Baru</h3><button onclick="closeModal('createModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+            <form onsubmit="handleCreateKey(event)" class="space-y-4">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Pilih User</label><select id="modalUserSelect" required class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50"><option value="">Memuat...</option></select></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">API Key</label><div class="flex gap-2"><input id="modalKeyInput" type="text" required class="w-full border border-gray-300 rounded-lg p-2.5 font-mono text-sm"><button type="button" onclick="generateRandomStringInModal()" class="bg-gray-200 hover:bg-gray-300 px-3 rounded-lg"><i class="fas fa-dice"></i></button></div></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Expired Date</label><input id="modalDateInput" type="date" required class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50"></div>
+                <button type="submit" class="w-full bg-[#6A7C66] hover:bg-[#5D7F62] text-white font-bold py-2.5 rounded-lg transition mt-2">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT EXPIRED -->
+    <div id="editKeyModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-[#546650]">Perpanjang Key</h3><button onclick="closeModal('editKeyModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+            <form onsubmit="handleUpdateKey(event)" class="space-y-4">
+                <input type="hidden" id="editKeyId">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Key</label><input id="editKeyString" type="text" readonly class="w-full border border-gray-200 bg-gray-100 rounded-lg p-2.5 text-gray-500 font-mono"></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Expired Date Baru</label><input id="editKeyDate" type="date" required class="w-full border border-gray-300 rounded-lg p-2.5"></div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition mt-2">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // --- AUTH & INIT ---
+    const token = localStorage.getItem('adminToken');
+    function parseJwt (token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
+    
+    if (!token) window.location.href = '/login.html';
+    else { const u = parseJwt(token); if(u) document.getElementById('adminEmailDisplay').innerText = u.email; }
+
+    function logout() { 
+        if(confirm("Logout?")) { 
+            localStorage.removeItem('adminToken'); 
+            window.location.href = '/index.html'; 
+        } 
+    }
+    
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function searchTable() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    }
+
+    // --- LOAD KEYS ---
+    async function loadKeys() {
+        try {
+            const res = await fetch('http://localhost:3000/api/admin/apikeys');
+            const data = await res.json();
+            renderTable(data);
+        } catch (err) {
+            document.getElementById('tableContent').innerHTML = `<div class="p-8 text-center text-red-500">Gagal memuat: ${err.message}</div>`;
+        }
+    }
+
+    function renderTable(data) {
+        const container = document.getElementById('tableContent');
+        if(data.length === 0) return container.innerHTML = '<div class="p-8 text-center text-gray-500">Belum ada API Key.</div>';
+        
+        let rows = data.map((k, i) => `
+            <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
+                <td class="p-4 text-center text-gray-500 font-mono">${i + 1}</td>
+                <td class="p-4"><span class="font-mono text-sm text-[#D97706] bg-amber-50 px-2 py-1 rounded select-all cursor-pointer">${k.key}</span></td>
+                <td class="p-4">${k.user ? k.user.email : '<span class="text-red-500 text-xs">User Dihapus</span>'}</td>
+                <td class="p-4 text-sm text-gray-500">${new Date(k.out_of_date).toLocaleDateString()}</td>
+                <td class="p-4 text-center">
+                    <button onclick="openEditKeyModal('${k.id_apiKey}', '${k.key}', '${k.out_of_date}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded mr-1" title="Perpanjang"><i class="fas fa-calendar-alt"></i></button>
+                    <button onclick="deleteApiKey(${k.id_apiKey})" class="text-red-500 hover:bg-red-50 p-2 rounded" title="Hapus"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        
+        container.innerHTML = `<table class="w-full text-left"><thead class="bg-[#D2DCB6]/50 text-[#546650] uppercase text-xs"><th class="p-4 text-center">#</th><th class="p-4">Key</th><th class="p-4">User</th><th class="p-4">Expired</th><th class="p-4 text-center">Aksi</th></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    // --- CRUD LOGIC ---
+    async function openCreateModal() {
+        document.getElementById('modalKeyInput').value = '';
+        const select = document.getElementById('modalUserSelect');
+        select.innerHTML = '<option>Memuat...</option>';
+        
+        const date = new Date(); date.setDate(date.getDate() + 30);
+        document.getElementById('modalDateInput').valueAsDate = date;
+        
+        document.getElementById('createModal').classList.remove('hidden');
+
+        try {
+            const res = await fetch('http://localhost:3000/api/admin/users');
+            const users = await res.json();
+            select.innerHTML = '<option value="">-- Pilih User --</option>';
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id_user; 
+                opt.innerText = `${u.first_name} (${u.email})`;
+                select.appendChild(opt);
+            });
+        } catch(e) { alert("Gagal load user"); }
+    }
+
+    let hasGenerated = false;
+
+    function generateRandomStringInModal() {
+        if (hasGenerated) {
+            alert("Anda sudah melakukan generate sekali. Tidak bisa meng-generate lagi.");
+            return;
+        }
+
+        document.getElementById('modalKeyInput').value =
+            [...Array(32)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+        hasGenerated = true; // 🔒 Kunci generate agar tidak bisa lagi
+    }
+
+    async function handleCreateKey(e) {
+        e.preventDefault();
+        const id_user = document.getElementById('modalUserSelect').value;
+        const key = document.getElementById('modalKeyInput').value;
+        const out_of_date = document.getElementById('modalDateInput').value;
+        if(!id_user) return alert("Pilih User!");
+
+        const res = await fetch('http://localhost:3000/api/admin/apikeys', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id_user, key, out_of_date})
+        });
+        if(res.ok) { alert("Berhasil!"); closeModal('createModal'); loadKeys(); } else { alert("Gagal buat key"); }
+    }
+
+    function openEditKeyModal(id, keyStr, dateStr) {
+        document.getElementById('editKeyId').value = id;
+        document.getElementById('editKeyString').value = keyStr;
+        document.getElementById('editKeyDate').value = new Date(dateStr).toISOString().split('T')[0];
+        document.getElementById('editKeyModal').classList.remove('hidden');
+    }
+
+    async function handleUpdateKey(e) {
+        e.preventDefault();
+        const id = document.getElementById('editKeyId').value;
+        const out_of_date = document.getElementById('editKeyDate').value;
+        const res = await fetch(`http://localhost:3000/api/admin/apikeys/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ out_of_date })
+        });
+        if(res.ok) { alert("Berhasil update!"); closeModal('editKeyModal'); loadKeys(); } else { alert("Gagal update"); }
+    }
+
+    async function deleteApiKey(id) {
+        if(confirm("Hapus key ini?")) {
+            await fetch(`http://localhost:3000/api/admin/apikeys/${id}`, { method: 'DELETE' });
+            loadKeys();
+        }
+    }
+
+    loadKeys();
+</script>
+</body>
+</html>
