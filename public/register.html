@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-[#F1F3E0] via-[#D2DCB6] to-[#A1BC98] flex items-center justify-center p-4">
+
+    <div class="w-full max-w-sm bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-xl border border-[#A1BC98]/40">
+
+        <h2 class="text-3xl font-semibold text-center text-[#778873] mb-6">Register</h2>
+
+        <div id="successAlert" class="hidden bg-[#A1BC98] text-white text-center p-2 rounded-lg mb-4">
+            Akun berhasil dibuat! Mengalihkan ke halaman login...
+        </div>
+
+        <form class="space-y-4" onsubmit="handleRegister(event)">
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Nama Lengkap</label>
+                <input 
+                    id="fullname"
+                    type="text" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none"
+                    placeholder="Masukkan nama lengkap">
+            </div>
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Email</label>
+                <input 
+                    id="email"
+                    type="email" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none"
+                    placeholder="Masukkan email">
+            </div>
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Password</label>
+                <input 
+                    id="password"
+                    type="password" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none"
+                    placeholder="Masukkan password">
+            </div>
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Konfirmasi Password</label>
+                <input 
+                    id="confirmPassword"
+                    type="password" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none"
+                    placeholder="Ulangi password">
+            </div>
+
+            <button 
+                type="submit"
+                class="w-full bg-[#778873] text-white py-2 rounded-lg hover:bg-[#6A7C66] transition">
+                Register
+            </button>
+
+        </form>
+
+        <p class="text-center mt-4 text-[#556556] text-sm">
+            Sudah punya akun?
+            <a href="login.html" class="text-[#778873] font-semibold hover:underline">
+                Login disini
+            </a>
+        </p>
+
+    </div>
+
+    <script>
+        async function handleRegister(e) {
+            e.preventDefault();
+
+            // 1. Ambil Data dari Input
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const alertBox = document.getElementById("successAlert");
+
+            // 2. Validasi Password Sama
+            if (password !== confirmPassword) {
+                alert("Password dan Konfirmasi Password tidak sama!");
+                return;
+            }
+
+            try {
+                // 3. Kirim ke Backend
+                const res = await fetch("http://localhost:3000/api/admin/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }) // Backend kita cuma butuh email & pass
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // SUKSES
+                    alertBox.classList.remove("hidden"); // Munculkan notif hijau
+                    
+                    // Redirect setelah 2 detik
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                } else {
+                    // GAGAL
+                    alert("Gagal Register: " + data.message);
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan server.");
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-[#F1F3E0] via-[#D2DCB6] to-[#A1BC98] flex items-center justify-center p-4 relative">
+
+    <nav class="absolute top-0 left-0 w-full z-10 py-6 px-6">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            
+            <a href="index.html" class="flex items-center gap-2 text-[#556556] hover:text-[#3d4a3e] transition group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 group-hover:rotate-12 transition duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                <span class="text-xl font-bold tracking-wide">API<span class="text-[#778873]">Manager</span></span>
+            </a>
+
+            <div class="flex gap-6">
+                <a href="index.html" class="text-[#556556] font-medium hover:text-[#2e3b2f] transition border-b-2 border-transparent hover:border-[#556556]">
+                    Home
+                </a>
+            </div>
+
+        </div>
+    </nav>
+    <div class="w-full max-w-sm bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-xl border border-[#A1BC98]/40 z-20">
+
+        <h2 class="text-3xl font-semibold text-center text-[#778873] mb-6">Login</h2>
+
+        <form class="space-y-4" onsubmit="handleLogin(event)">
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Email</label>
+                <input 
+                    id="email"
+                    type="email" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none transition"
+                    placeholder="Masukkan email">
+            </div>
+
+            <div>
+                <label class="block text-[#778873] font-medium mb-1">Password</label>
+                <input 
+                    id="password"
+                    type="password" 
+                    required
+                    class="w-full border border-[#A1BC98] rounded-lg p-2 bg-white focus:ring-2 focus:ring-[#778873] focus:outline-none transition"
+                    placeholder="Masukkan password">
+            </div>
+
+            <button 
+                id="btnLogin"
+                type="submit"
+                class="w-full bg-[#778873] text-white py-2 rounded-lg hover:bg-[#6A7C66] hover:shadow-md transition disabled:opacity-50 transform active:scale-95 duration-150">
+                Login
+            </button>
+
+        </form>
+
+        <p class="text-center mt-4 text-[#556556] text-sm">
+            Belum punya akun?
+            <a href="register.html" class="text-[#778873] font-semibold hover:underline hover:text-[#4d5c4b]">
+                Daftar disini
+            </a>
+        </p>
+
+    </div>
+
+<script>
+async function handleLogin(e) {
+    e.preventDefault(); 
+    const btn = document.getElementById("btnLogin");
+    const originalText = btn.innerText;
+    btn.innerText = "Memproses...";
+    btn.disabled = true;
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    console.log("Mencoba login dengan:", email);
+
+    try {
+        // Simulasi fetch (ganti URL sesuai backend Anda)
+        const res = await fetch("http://localhost:3000/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            localStorage.setItem("adminToken", data.token);
+            alert("Login Berhasil! Mengalihkan ke Dashboard...");
+            window.location.href = "dashboard.html"; 
+        } else {
+            alert("Gagal: " + (data.message || "Periksa email/password"));
+        }
+
+    } catch (err) {
+        console.error("Error Koneksi:", err);
+        // alert("Backend error. Pastikan server jalan.");
+        
+        // UNTUK DEMO SAJA: Hapus bagian else ini jika backend sudah connect
+        alert("Demo: Backend tidak terdeteksi, tapi UI Logic berjalan.");
+        
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+
+</body>
+</html>
