@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Users</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-[#6A7C66] text-white flex flex-col justify-between shadow-2xl z-20">
+            <div>
+                <div class="h-16 flex items-center justify-center border-b border-[#556556] bg-[#5D7F62]">
+                    <h1 class="text-xl font-bold tracking-wider flex items-center"><i class="fas fa-shield-alt mr-2"></i> ADMIN PANEL</h1>
+                </div>
+                <nav class="mt-6 px-4 space-y-2">
+                    <!-- UPDATE LINK NAVIGASI KE RELATIVE PATH (./) AGAR LEBIH AMAN -->
+                    <a href="./dashboard.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
+                        <i class="fas fa-home w-6"></i> <span class="font-medium">Dashboard Utama</span>
+                    </a>
+                    <a href="./dashboard-users.html" class="flex items-center px-4 py-3 text-left rounded-lg bg-[#556556] text-white transition shadow-inner">
+                        <i class="fas fa-users w-6"></i> <span class="font-medium">Daftar Users</span>
+                    </a>
+                    <a href="./dashboard-apikeys.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
+                        <i class="fas fa-key w-6"></i> <span class="font-medium">Daftar API Keys</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-[#556556] bg-[#5D7F62]">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30"><i class="fas fa-user-tie text-lg"></i></div>
+                    <div class="overflow-hidden"><p class="text-xs text-gray-300">Login sebagai:</p><p id="adminEmailDisplay" class="font-semibold text-sm truncate w-36">...</p></div>
+                </div>
+                <button onclick="logout()" class="w-full bg-red-500/90 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 shadow-lg"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- KONTEN UTAMA -->
+        <main class="flex-1 overflow-y-auto bg-[#F1F3E0] p-8 relative z-10">
+            <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-[#A1BC98]/50 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#546650]">Manajemen User</h2>
+                    <p class="text-sm text-gray-500 mt-1">Kelola data pengguna yang terdaftar.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari nama/email..." class="pl-10 pr-4 py-2 border border-[#A1BC98] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A7C66] bg-white/80 w-64 shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
+                    </div>
+                    <!-- TOMBOL TAMBAH USER BARU -->
+                    <button onclick="openCreateUserModal()" class="bg-[#6A7C66] hover:bg-[#5D7F62] text-white px-4 py-2 rounded-lg font-medium shadow-md transition flex items-center gap-2">
+                        <i class="fas fa-user-plus"></i> Tambah User
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-[#A1BC98]/30 overflow-hidden min-h-[400px]">
+                <div id="tableContent" class="p-0">
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-400"><i class="fas fa-spinner fa-spin text-3xl mb-3 text-[#A1BC98]"></i><p>Memuat data users...</p></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL CREATE USER (BARU) -->
+    <div id="createUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 animate-fade-in-down">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-[#546650]">Tambah User Baru</h3>
+                <button onclick="closeModal('createUserModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="handleCreateUser(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Depan</label>
+                        <input id="createFirstName" type="text" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Belakang</label>
+                        <input id="createLastName" type="text" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input id="createEmail" type="email" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]">
+                </div>
+                <button type="submit" class="w-full bg-[#6A7C66] hover:bg-[#5D7F62] text-white font-bold py-2.5 rounded-lg transition mt-2">Simpan User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT USER -->
+    <div id="editUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-[#546650]">Edit Data User</h3><button onclick="closeModal('editUserModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+            <form onsubmit="handleUpdateUser(event)" class="space-y-4">
+                <input type="hidden" id="editUserId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">First Name</label><input id="editUserFirst" type="text" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label><input id="editUserLast" type="text" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]"></div>
+                </div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label><input id="editUserEmail" type="email" class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#A1BC98]"></div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition mt-2">Update User</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // --- AUTH & INIT ---
+    const token = localStorage.getItem('adminToken');
+    function parseJwt (token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
+    
+    if (!token) {
+        // PERBAIKAN: Gunakan new URL() untuk membuat full absolute URL agar valid di semua environment
+        // Ini mengatasi error "Invalid URL" karena string assignment
+        const loginUrl = new URL('login.html', window.location.href).href;
+        window.location.href = loginUrl;
+    } else { 
+        const u = parseJwt(token); 
+        if(u) document.getElementById('adminEmailDisplay').innerText = u.email; 
+    }
+
+    function logout() { 
+        if(confirm("Logout?")) { 
+            localStorage.removeItem('adminToken'); 
+            // PERBAIKAN: Redirect ke login.html dengan full URL
+            const loginUrl = new URL('login.html', window.location.href).href;
+            window.location.href = loginUrl;
+        } 
+    }
+    
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function searchTable() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    }
+
+    // --- LOAD USERS ---
+    async function loadUsers() {
+        try {
+            const res = await fetch('http://localhost:3000/api/admin/users');
+            const data = await res.json();
+            renderTable(data);
+        } catch (err) {
+            document.getElementById('tableContent').innerHTML = `<div class="p-8 text-center text-red-500">Gagal memuat: ${err.message}</div>`;
+        }
+    }
+
+    function renderTable(data) {
+        const container = document.getElementById('tableContent');
+        if(data.length === 0) return container.innerHTML = '<div class="p-8 text-center text-gray-500">Belum ada user.</div>';
+        
+        let rows = data.map((u, i) => `
+            <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
+                <td class="p-4 text-center text-gray-500 font-mono">${i + 1}</td>
+                <td class="p-4 font-semibold text-gray-700">${u.first_name} ${u.last_name}</td>
+                <td class="p-4 text-blue-600">${u.email}</td>
+                <td class="p-4 text-center">
+                    <button onclick="openEditUserModal('${u.id_user}', '${u.first_name}', '${u.last_name}', '${u.email}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded mr-1" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteUser(${u.id_user})" class="text-red-500 hover:bg-red-50 p-2 rounded" title="Hapus"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        
+        container.innerHTML = `<table class="w-full text-left"><thead class="bg-[#D2DCB6]/50 text-[#546650] uppercase text-xs"><th class="p-4 text-center">#</th><th class="p-4">Nama</th><th class="p-4">Email</th><th class="p-4 text-center">Aksi</th></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    // --- CRUD LOGIC ---
+    
+    // 1. CREATE USER
+    function openCreateUserModal() {
+        document.getElementById('createFirstName').value = '';
+        document.getElementById('createLastName').value = '';
+        document.getElementById('createEmail').value = '';
+        document.getElementById('createUserModal').classList.remove('hidden');
+    }
+
+    async function handleCreateUser(e) {
+        e.preventDefault();
+        const body = {
+            first_name: document.getElementById('createFirstName').value,
+            last_name: document.getElementById('createLastName').value,
+            email: document.getElementById('createEmail').value
+        };
+
+        const res = await fetch('http://localhost:3000/api/users', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        });
+
+        const result = await res.json();
+        if(res.ok) {
+            alert("User berhasil ditambahkan!");
+            closeModal('createUserModal');
+            loadUsers();
+        } else {
+            alert("Gagal: " + result.message);
+        }
+    }
+
+    // 2. EDIT USER
+    function openEditUserModal(id, f, l, e) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUserFirst').value = f;
+        document.getElementById('editUserLast').value = l;
+        document.getElementById('editUserEmail').value = e;
+        document.getElementById('editUserModal').classList.remove('hidden');
+    }
+
+    async function handleUpdateUser(e) {
+        e.preventDefault();
+        const id = document.getElementById('editUserId').value;
+        const body = {
+            first_name: document.getElementById('editUserFirst').value,
+            last_name: document.getElementById('editUserLast').value,
+            email: document.getElementById('editUserEmail').value
+        };
+        const res = await fetch(`http://localhost:3000/api/users/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+        if(res.ok) { alert("Berhasil update!"); closeModal('editUserModal'); loadUsers(); } else alert("Gagal update");
+    }
+
+    // 3. DELETE USER
+    async function deleteUser(id) {
+        if(confirm("Hapus user ini?")) {
+            await fetch(`http://localhost:3000/api/users/${id}`, { method: 'DELETE' });
+            loadUsers();
+        }
+    }
+
+    loadUsers(); // Start
+</script>
+</body>
+</html>
