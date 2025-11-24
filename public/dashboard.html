@@ -6,41 +6,32 @@
     <title>Admin Dashboard - Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js CDN untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
     <div class="flex h-screen overflow-hidden">
-
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-[#6A7C66] text-white flex flex-col justify-between shadow-2xl z-20">
             <div>
-                <!-- HEADER SIDEBAR -->
                 <div class="h-16 flex items-center justify-center border-b border-[#556556] bg-[#5D7F62]">
                     <h1 class="text-xl font-bold tracking-wider flex items-center">
                         <i class="fas fa-shield-alt mr-2"></i> ADMIN PANEL
                     </h1>
                 </div>
 
-                <!-- MENU NAVIGASI -->
                 <nav class="mt-6 px-4 space-y-2">
-                    <!-- MENU AKTIF (HOME) -->
                     <a href="./dashboard.html" class="flex items-center px-4 py-3 text-left rounded-lg bg-[#556556] text-white transition shadow-inner">
                         <i class="fas fa-home w-6"></i> <span class="font-medium">Dashboard Utama</span>
                     </a>
-                    <!-- LINK KE USERS -->
                     <a href="./dashboard-users.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
                         <i class="fas fa-users w-6"></i> <span class="font-medium">Daftar Users</span>
                     </a>
-                    <!-- LINK KE API KEYS -->
                     <a href="./dashboard-apikeys.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
                         <i class="fas fa-key w-6"></i> <span class="font-medium">Daftar API Keys</span>
                     </a>
                 </nav>
             </div>
 
-            <!-- PROFILE & LOGOUT -->
             <div class="p-4 border-t border-[#556556] bg-[#5D7F62]">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
@@ -57,23 +48,17 @@
             </div>
         </aside>
 
-        <!-- KONTEN UTAMA -->
         <main class="flex-1 overflow-y-auto bg-[#F1F3E0] p-8 relative z-10">
             
-            <!-- HEADER PAGE -->
             <div class="mb-8 border-b border-[#A1BC98]/50 pb-4">
                 <h2 class="text-3xl font-bold text-[#546650]">Statistik Sistem</h2>
                 <p class="text-sm text-gray-500 mt-1">Ringkasan data penggunaan sistem secara real-time.</p>
             </div>
 
-            <!-- 1. KARTU STATISTIK (JUMLAH DATA) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                
-                <!-- Kartu User -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 flex items-center justify-between transition hover:-translate-y-1 hover:shadow-xl">
                     <div>
                         <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Total Users</p>
-                        <!-- ID INI AKAN DIISI JAVASCRIPT -->
                         <h3 id="countUser" class="text-4xl font-bold text-gray-800 mt-2">...</h3>
                         <a href="./dashboard-users.html" class="text-blue-500 text-xs font-semibold hover:underline mt-3 inline-block">
                             Lihat Detail User &rarr;
@@ -84,11 +69,9 @@
                     </div>
                 </div>
 
-                <!-- Kartu API Keys -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-[#D97706] flex items-center justify-between transition hover:-translate-y-1 hover:shadow-xl">
                     <div>
                         <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Total API Keys</p>
-                        <!-- ID INI AKAN DIISI JAVASCRIPT -->
                         <h3 id="countKey" class="text-4xl font-bold text-gray-800 mt-2">...</h3>
                         <a href="./dashboard-apikeys.html" class="text-[#D97706] text-xs font-semibold hover:underline mt-3 inline-block">
                             Lihat Detail Key &rarr;
@@ -100,13 +83,11 @@
                 </div>
             </div>
 
-            <!-- 2. GRAFIK CHART.JS -->
             <div class="bg-white rounded-xl shadow-lg p-6 border border-[#A1BC98]/30">
                 <h3 class="text-lg font-bold text-[#546650] mb-6 flex items-center gap-2">
                     <i class="fas fa-chart-bar"></i> Grafik Pertumbuhan Data
                 </h3>
                 <div class="relative h-80 w-full">
-                    <!-- CANVAS UNTUK GRAFIK -->
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
@@ -115,14 +96,11 @@
     </div>
 
 <script>
-    // ===============================
     // 1. AUTHENTICATION & SAFE REDIRECT
-    // ===============================
     const token = localStorage.getItem('adminToken');
     
     function parseJwt (token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
 
-    // Fungsi Redirect Aman (Anti Error di Preview)
     function safeRedirect(path) {
         if (window.location.protocol === 'blob:' || window.location.href.includes('blob:')) {
             console.warn(`[Preview Mode] Redirect ke ${path} dicegah agar tidak error.`);
@@ -145,23 +123,16 @@
         } 
     }
 
-    // ===============================
     // 2. LOAD STATS & RENDER CHART
-    // ===============================
     async function loadStats() {
         try {
-            // Fetch data dari Backend
             const res = await fetch('http://localhost:3000/api/admin/stats');
             
             if (!res.ok) throw new Error("Gagal mengambil data");
 
-            const data = await res.json(); // { users: 5, apikeys: 10 }
-
-            // A. Update Angka di Kartu (dengan animasi)
+            const data = await res.json();
             animateValue("countUser", 0, data.users, 1000);
             animateValue("countKey", 0, data.apikeys, 1000);
-
-            // B. Render Chart
             renderChart(data.users, data.apikeys);
 
         } catch (err) {
@@ -182,8 +153,8 @@
                     label: 'Jumlah Data',
                     data: [userCount, keyCount],
                     backgroundColor: [
-                        'rgba(59, 130, 246, 0.7)', // Biru
-                        'rgba(217, 119, 6, 0.7)'   // Orange
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(217, 119, 6, 0.7)'  
                     ],
                     borderColor: [
                         'rgba(59, 130, 246, 1)',
@@ -203,14 +174,13 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { precision: 0 } // Supaya angka bulat (tidak ada 1.5 user)
+                        ticks: { precision: 0 }
                     }
                 }
             }
         });
     }
 
-    // Fungsi animasi angka naik (0 -> Total)
     function animateValue(id, start, end, duration) {
         const obj = document.getElementById(id);
         let startTimestamp = null;
@@ -224,8 +194,6 @@
         };
         window.requestAnimationFrame(step);
     }
-
-    // Jalankan saat halaman dimuat
     loadStats();
 
 </script>

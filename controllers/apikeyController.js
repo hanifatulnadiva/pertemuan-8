@@ -1,9 +1,8 @@
 const crypto = require("crypto");
-const { User, ApiKey } = require("../models"); // Import model
+const { User, ApiKey } = require("../models");
 
 module.exports = {
 
-    // 1. GENERATE RANDOM STRING
     generateKey: (req, res) => {
         try {
             const key = crypto.randomBytes(16).toString('hex');
@@ -15,7 +14,6 @@ module.exports = {
         }
     },
 
-    // 2. PUBLIC REGISTER (User Daftar Sendiri)
     saveUserKey: async (req, res) => {
         try {
             const { first_name, last_name, email, key, out_of_date } = req.body;
@@ -38,7 +36,6 @@ module.exports = {
         }
     },
 
-    // 3. GET ALL (Untuk Dashboard)
     getAllApiKeys: async (req, res) => {
         try {
             const keys = await ApiKey.findAll({
@@ -55,12 +52,10 @@ module.exports = {
         }   
     },
 
-    // 4. CREATE MANUAL (Admin buat key baru)
     createApiKey: async (req, res) => {
         try {
             const { key, out_of_date, id_user } = req.body;
             
-            // Validasi user ada atau tidak
             const user = await User.findByPk(id_user);
             if(!user) return res.status(404).json({ message: "User tidak ditemukan" });
 
@@ -75,7 +70,6 @@ module.exports = {
         }
     },
 
-    // 5. UPDATE KEY (INI YANG TADI HILANG DAN BIKIN ERROR)
     updateApiKey: async (req, res) => {
         const { id } = req.params;
         const { out_of_date } = req.body;
@@ -93,7 +87,6 @@ module.exports = {
         }
     },
 
-    // 6. DELETE KEY
     deleteKey: async (req, res) => {
         const { id } = req.params;
         try {
@@ -105,7 +98,6 @@ module.exports = {
         }
     },
     
-    // 7. GET ONE BY ID (Opsional)
     getApiKeyById: async (req, res) => {
         const { id } = req.params;
         try {

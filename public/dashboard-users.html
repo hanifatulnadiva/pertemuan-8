@@ -10,15 +10,12 @@
 <body class="bg-gray-100 font-sans antialiased">
 
     <div class="flex h-screen overflow-hidden">
-
-        <!-- SIDEBAR -->
         <aside class="w-64 bg-[#6A7C66] text-white flex flex-col justify-between shadow-2xl z-20">
             <div>
                 <div class="h-16 flex items-center justify-center border-b border-[#556556] bg-[#5D7F62]">
                     <h1 class="text-xl font-bold tracking-wider flex items-center"><i class="fas fa-shield-alt mr-2"></i> ADMIN PANEL</h1>
                 </div>
                 <nav class="mt-6 px-4 space-y-2">
-                    <!-- UPDATE LINK NAVIGASI KE RELATIVE PATH (./) AGAR LEBIH AMAN -->
                     <a href="./dashboard.html" class="flex items-center px-4 py-3 text-left rounded-lg hover:bg-[#556556] transition opacity-80 hover:opacity-100">
                         <i class="fas fa-home w-6"></i> <span class="font-medium">Dashboard Utama</span>
                     </a>
@@ -39,7 +36,6 @@
             </div>
         </aside>
 
-        <!-- KONTEN UTAMA -->
         <main class="flex-1 overflow-y-auto bg-[#F1F3E0] p-8 relative z-10">
             <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-[#A1BC98]/50 pb-4">
                 <div>
@@ -51,7 +47,6 @@
                         <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari nama/email..." class="pl-10 pr-4 py-2 border border-[#A1BC98] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A7C66] bg-white/80 w-64 shadow-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-search"></i></div>
                     </div>
-                    <!-- TOMBOL TAMBAH USER BARU -->
                     <button onclick="openCreateUserModal()" class="bg-[#6A7C66] hover:bg-[#5D7F62] text-white px-4 py-2 rounded-lg font-medium shadow-md transition flex items-center gap-2">
                         <i class="fas fa-user-plus"></i> Tambah User
                     </button>
@@ -66,7 +61,6 @@
         </main>
     </div>
 
-    <!-- MODAL CREATE USER (BARU) -->
     <div id="createUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 animate-fade-in-down">
             <div class="flex justify-between items-center mb-6">
@@ -92,8 +86,6 @@
             </form>
         </div>
     </div>
-
-    <!-- MODAL EDIT USER -->
     <div id="editUserModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
             <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-[#546650]">Edit Data User</h3><button onclick="closeModal('editUserModal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
@@ -110,13 +102,10 @@
     </div>
 
 <script>
-    // --- AUTH & INIT ---
     const token = localStorage.getItem('adminToken');
     function parseJwt (token) { try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; } }
     
     if (!token) {
-        // PERBAIKAN: Gunakan new URL() untuk membuat full absolute URL agar valid di semua environment
-        // Ini mengatasi error "Invalid URL" karena string assignment
         const loginUrl = new URL('login.html', window.location.href).href;
         window.location.href = loginUrl;
     } else { 
@@ -127,7 +116,6 @@
     function logout() { 
         if(confirm("Logout?")) { 
             localStorage.removeItem('adminToken'); 
-            // PERBAIKAN: Redirect ke login.html dengan full URL
             const loginUrl = new URL('login.html', window.location.href).href;
             window.location.href = loginUrl;
         } 
@@ -143,7 +131,6 @@
         });
     }
 
-    // --- LOAD USERS ---
     async function loadUsers() {
         try {
             const res = await fetch('http://localhost:3000/api/admin/users');
@@ -172,9 +159,6 @@
         container.innerHTML = `<table class="w-full text-left"><thead class="bg-[#D2DCB6]/50 text-[#546650] uppercase text-xs"><th class="p-4 text-center">#</th><th class="p-4">Nama</th><th class="p-4">Email</th><th class="p-4 text-center">Aksi</th></thead><tbody>${rows}</tbody></table>`;
     }
 
-    // --- CRUD LOGIC ---
-    
-    // 1. CREATE USER
     function openCreateUserModal() {
         document.getElementById('createFirstName').value = '';
         document.getElementById('createLastName').value = '';
@@ -206,7 +190,6 @@
         }
     }
 
-    // 2. EDIT USER
     function openEditUserModal(id, f, l, e) {
         document.getElementById('editUserId').value = id;
         document.getElementById('editUserFirst').value = f;
@@ -227,7 +210,6 @@
         if(res.ok) { alert("Berhasil update!"); closeModal('editUserModal'); loadUsers(); } else alert("Gagal update");
     }
 
-    // 3. DELETE USER
     async function deleteUser(id) {
         if(confirm("Hapus user ini?")) {
             await fetch(`http://localhost:3000/api/users/${id}`, { method: 'DELETE' });
@@ -235,7 +217,7 @@
         }
     }
 
-    loadUsers(); // Start
+    loadUsers(); 
 </script>
 </body>
 </html>
