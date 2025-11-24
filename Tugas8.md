@@ -16,7 +16,7 @@ KELAS   : E <br>
 |GET|<img width="1920" height="1200" alt="image" src="SS/admin/managemenUser/getAllUser.png">|
 |POST|<img width="1920" height="1200" alt="image" src="SS/admin/managemenUser/create.png">|
 |PUT|<img width="1920" height="1200" alt="image" src="SS/admin/managemenUser/PutUser.png">|
-|DELETE|<img width="1920" height="1200" alt="image" src="SS/admin/managemenUser/">|
+|DELETE|<img width="1920" height="1200" alt="image" src="SS/admin/managemenUser/DeleteUser.png">|
 |Tampilan User|
 |Get Apikey |<img width="1920" height="1200" alt="image" src="SS/user/getapikeys.png">|
 | Post Apikey |<img width="1920" height="1200" alt="image" src="SS/user/postapikeysuser.png">|
